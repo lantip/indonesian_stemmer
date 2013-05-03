@@ -12,6 +12,6 @@ Penggunaan:
 	In [1]: from indonesian_stemmer import ILStemmer
 	In [2]: stemmer = ILStemmer()
 	In [3]: stemmer.stem('memperingati tujuh belasan')
-	Out[3]: 'tujuh memper-ingat-i belas '
+	Out[3]: 'tujuh memper-ingat-i belas-an'
 	In [4]: stemmer.stem('penanaman')
 	Out[4]: 'pen-tanam-an '
