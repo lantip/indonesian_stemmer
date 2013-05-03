@@ -122,11 +122,14 @@ class ILStemmer(object):
         for i in range(len(words)):
             result = words[i][1]['roots']
             for key in result.keys():
-                try:
-                    stemmed +=  str(result[key]['prefixes'])+str(result[key]['lemma'])+str(result[key]['suffixes']) + ' '
-                except:
-                    stemmed += result[key]['lemma']+ ' '
-        return stemmed
+                if 'prefixes' in result[key].keys():
+                    stemmed += str(result[key]['prefixes'])
+                stemmed += str(result[key]['lemma'])
+                if 'suffixes' in result[key].keys():
+                    stemmed += str(result[key]['suffixes'])
+                stemmed += ' '
+                
+        return stemmed.rstrip()
         
 
     def ksort(self, data):
