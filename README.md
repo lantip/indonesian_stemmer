@@ -9,7 +9,7 @@ Requirements:
 Penggunaan:
 -----------
 
-	In [1]: from IvanLantipStemmer import ILStemmer
+	In [1]: from indonesian_stemmer import ILStemmer
 	In [2]: stemmer = ILStemmer()
 	In [3]: stemmer.stem('memperingati tujuh belasan')
 	Out[3]: 'tujuh memper-ingat-i belas '
