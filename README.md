@@ -15,3 +15,7 @@ Penggunaan:
 	Out[3]: 'tujuh memper-ingat-i belas-an'
 	In [4]: stemmer.stem('penanaman')
 	Out[4]: 'pen-tanam-an '
+
+Changelog:
+----------
+04 Mei 2013 memperbaiki keluaran jika kata sudah ada di kamus. Perbaikan untuk kegagalan kata "mereka, kapan, dll"

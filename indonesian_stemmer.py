@@ -102,10 +102,15 @@ class ILStemmer(object):
             words[key]= { 'count': self.cnom(key,query)}
             
         for k,v in words.items():
-            words[k]['roots'] = self.stem_word(k)
-            if len(words[k]['roots']) == 0 and self.OPTION['NO_NO_MATCH']:
-                del words[k]
-                continue
+            if k in self.dicti.keys():
+                words[k]['roots'] = {}
+                words[k]['roots'][k] = {}
+                words[k]['roots'][k]['lemma'] = k
+            else:
+                words[k]['roots'] = self.stem_word(k)
+                if len(words[k]['roots']) == 0 and self.OPTION['NO_NO_MATCH']:
+                    del words[k]
+                    continue
             instance[k] = v['count']
         word_count = len(words)
         if self.OPTION['SORT_INSTANCE']:
