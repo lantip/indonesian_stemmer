@@ -6,6 +6,7 @@ import pprint
 import time
 import re
 import sys
+from collections import OrderedDict
 
 class ILStemmer(object):
     def __init__(self):
@@ -14,6 +15,7 @@ class ILStemmer(object):
         	'NO_NO_MATCH'	: False, #hide no match entry
         	'NO_DIGIT_ONLY'	: True,  #hide digit only
         	'STRICT_CONFIX'	: False, #use strict disallowed_confixes RULES
+            'ALLOW_HASHTAGS' : False, #preserve hashtags. cause, you know.. netizen
         }
 
         BASEDIR = os.path.dirname(os.path.abspath(__file__))
@@ -92,15 +94,17 @@ class ILStemmer(object):
     def stem(self, query):
         words = {}
         instance = {}
-        paw   = re.compile(r'\W+')
+        if self.OPTION['ALLOW_HASHTAGS']:
+            paw   = re.compile('[^A-Za-z0-9#]+')
+        else:   
+            paw   = re.compile('[^A-Za-z0-9]+')
         raw   = paw.split(query)
-   
-        for r in raw:
+        for index,r in enumerate(raw):
             if self.OPTION['NO_DIGIT_ONLY'] and re.search('^\d',r):
                 continue
             key = r.lower()
-            words[key]= { 'count': self.cnom(key,query)}
-            
+            words[key]= { 'count': self.cnom(key,query), 'order': index}
+        words = OrderedDict(sorted(words.iteritems(), key=lambda x: x[1]['order']))
         for k,v in words.items():
             if k in self.dicti.keys():
                 words[k]['roots'] = {}
@@ -111,7 +115,8 @@ class ILStemmer(object):
                 if len(words[k]['roots']) == 0 and self.OPTION['NO_NO_MATCH']:
                     del words[k]
                     continue
-            instance[k] = v['count']
+            instance[k] = { 'count': v['count'], 'order': v['order']}
+        instance = OrderedDict(sorted(instance.iteritems(), key=lambda x: x[1]['order']))
         word_count = len(words)
         if self.OPTION['SORT_INSTANCE']:
             instance = sorted(instance)
@@ -136,21 +141,27 @@ class ILStemmer(object):
                 if 'suffixes' in result[key].keys():
                     stemmed += str(result[key]['suffixes'])
                 stemmed += ' '
+            if len(result) == 0 and not self.OPTION['NO_NO_MATCH']:
+                stemmed += words[i][0]
+                stemmed += ' '
                 
         return stemmed.rstrip()
         
     def stem_root(self, query):
         words = {}
         instance = {}
-        paw   = re.compile(r'\W+')
+        if self.OPTION['ALLOW_HASHTAGS']:
+            paw   = re.compile('[^A-Za-z0-9#]+')
+        else:   
+            paw   = re.compile('[^A-Za-z0-9]+')
         raw   = paw.split(query)
    
-        for r in raw:
+        for index,r in enumerate(raw):
             if self.OPTION['NO_DIGIT_ONLY'] and re.search('^\d',r):
                 continue
             key = r.lower()
-            words[key]= { 'count': self.cnom(key,query)}
-            
+            words[key]= { 'count': self.cnom(key,query), 'order': index}
+        words = OrderedDict(sorted(words.iteritems(), key=lambda x: x[1]['order']))
         for k,v in words.items():
             if k in self.dicti.keys():
                 words[k]['roots'] = {}
@@ -161,7 +172,8 @@ class ILStemmer(object):
                 if len(words[k]['roots']) == 0 and self.OPTION['NO_NO_MATCH']:
                     del words[k]
                     continue
-            instance[k] = v['count']
+            instance[k] = { 'count': v['count'], 'order': v['order']}
+        instance = OrderedDict(sorted(instance.iteritems(), key=lambda x: x[1]['order']))
         word_count = len(words)
         if self.OPTION['SORT_INSTANCE']:
             instance = sorted(instance)
@@ -181,6 +193,9 @@ class ILStemmer(object):
             result = words[i][1]['roots']
             for key in result.keys():
                 stemmed += str(result[key]['lemma'])
+                stemmed += ' '
+            if len(result) == 0 and not self.OPTION['NO_NO_MATCH']:
+                stemmed += words[i][0]
                 stemmed += ' '
                 
         return stemmed.rstrip()
