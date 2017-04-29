@@ -114,13 +114,16 @@ class ILStemmer(object):
             instance[k] = v['count']
         word_count = len(words)
         if self.OPTION['SORT_INSTANCE']:
-            keys = words.keys()
-            sorted(instance)
-            sorted(keys)
-            sorted(words)
+            instance = sorted(instance)
+            newwords = []
+            for key in instance:
+                newwords.append((key, words[key]))
+            words = newwords
         else:
-            words = self.ksort(words)
-        
+            newwords = []
+            for key in instance.keys():
+                newwords.append((key, words[key]))
+            words = newwords
         #return words
         #presenting the roots 
         stemmed = ''
@@ -136,6 +139,51 @@ class ILStemmer(object):
                 
         return stemmed.rstrip()
         
+    def stem_root(self, query):
+        words = {}
+        instance = {}
+        paw   = re.compile(r'\W+')
+        raw   = paw.split(query)
+   
+        for r in raw:
+            if self.OPTION['NO_DIGIT_ONLY'] and re.search('^\d',r):
+                continue
+            key = r.lower()
+            words[key]= { 'count': self.cnom(key,query)}
+            
+        for k,v in words.items():
+            if k in self.dicti.keys():
+                words[k]['roots'] = {}
+                words[k]['roots'][k] = {}
+                words[k]['roots'][k]['lemma'] = k
+            else:
+                words[k]['roots'] = self.stem_word(k)
+                if len(words[k]['roots']) == 0 and self.OPTION['NO_NO_MATCH']:
+                    del words[k]
+                    continue
+            instance[k] = v['count']
+        word_count = len(words)
+        if self.OPTION['SORT_INSTANCE']:
+            instance = sorted(instance)
+            newwords = []
+            for key in instance:
+                newwords.append((key, words[key]))
+            words = newwords
+        else:
+            newwords = []
+            for key in instance.keys():
+                newwords.append((key, words[key]))
+            words = newwords
+        #return words
+        #presenting the roots 
+        stemmed = ''
+        for i in range(len(words)):
+            result = words[i][1]['roots']
+            for key in result.keys():
+                stemmed += str(result[key]['lemma'])
+                stemmed += ' '
+                
+        return stemmed.rstrip()
 
     def ksort(self, data):
          return [(key,data[key]) for key in sorted(data.keys(), reverse=True)]
