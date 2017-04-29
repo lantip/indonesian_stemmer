@@ -16,8 +16,8 @@ class ILStemmer(object):
         	'STRICT_CONFIX'	: False, #use strict disallowed_confixes RULES
         }
 
-
-        fp  = open('./kamus.txt')
+        BASEDIR = os.path.dirname(os.path.abspath(__file__))
+        fp  = open(os.path.join(BASEDIR, 'kamus.txt'))
         dic = fp.readlines()
         fp.close()
         self.dicti = {}
